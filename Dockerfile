@@ -26,6 +26,7 @@ RUN yum -y install zip
 RUN yum -y install unzip
 RUN yum -y install curl xz
 RUN yum -y install python-devel.x86_64 
+RUN yum -y install patch
 
 #RUN yum install -y nkf
 RUN yum localinstall -y http://mirror.centos.org/centos/6/os/x86_64/Packages/nkf-2.0.8b-6.2.el6.x86_64.rpm

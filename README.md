@@ -29,7 +29,7 @@ TermExtractについては[このページ](http://gensen.dl.itc.u-tokyo.ac.jp/t
 | MeCab perl | 0.996 ||
 | TermExtract | 4_10 ||
 
-## イメージ構築
+### イメージ構築
 
 ```bash
 % git clone git@github.com:
@@ -69,6 +69,22 @@ Arrayの中には１要素=１文で記述してください。
     ]
 }
 ```
+### コンテナ起動
+
+イメージからコンテナを起動します。
+
+```
+% docker run --name termextract-json-io -v /var/lib/termextract:/var/lib/termextract -i -t -d termextract-json-io /bin/bash
+```
+
+`--name`はコンテナに名前をつけるオプション
+
+`-v` はホストとコンテナの共有ディレクトリを設定するオプション
+
+`-i -t termextract-json-io` で起動するイメージを指定しています。
+
+ここでは`-d`もつけてバックグラウンド実行にしました。
+
 
 ### コンテナ呼び出し
 
@@ -77,18 +93,58 @@ inputのjsonをcatコマンドで開いて、コンテナに送ります。
 コンテナの`/analysis_code/docker_main.py`がjson文字列を受け取って処理をしてくれます。
 
 ```
-% cat inputfile.json |\
-docker run -v /var/lib/termextract:/var/lib/termextract \
--a stdin -a stdout -a stderr -i termextract-json-io python2.7 /analysis_code/docker_main.py
+% cat dockerfiles/resources/input.json |\
+docker exec -i termextract-json-io python2.7 /analysis_code/docker_main.py
 ```
 
+形態素解析された結果が標準出力のJson文字列で返却されます。
+
+```
+[
+    {
+        "analyzed": [
+            [
+                "形態素",
+                [
+                    "品詞素性1",
+                    "品詞素性2",
+                    "品詞素性3"
+                ]
+            ]
+        ],
+        "original": "入力文"
+    }
+]
+```
+
+という構造です。
+
+解析結果をそのままファイルに出力したい場合はリダイレクトしてください。
+
+```
+% cat dockerfiles/resources/input.json | sudo docker exec -i termextract-json-io python2.7 /analysis_code/docker_main.py > dockerfiles/resources/analyzed_result.json
+```
+
+`dockerfiles/resources/`に入力サンプル`input.json`と出力サンプル`analyzed_result.json`があるので、参考にしてください。
 
 
+## コンテナ内部の処理について
 
+TermExtractのラッパーにすぎないので大した処理をしていません。
+
+* 1 termextractの呼び出し
+* 2 termextractの結果でMecab辞書(Mecabユーザー辞書)の作成
+* 3 作成した辞書で形態素解析
+
+#### その他
+
+* termextractはオプション番号1(専門用語+スコア出力)で呼び出しをしています
+* 各専門用語にはスコアが付与されています。一定のスコア以下の専門用語をユーザー辞書に載せず切り捨てをしています。
+    * 切り捨て閾値の設定は`./dockerfiles/settings/dockerProcess.ini`の`threshold`の部分で行ってください。デフォルトは`2.0`です。
 
 ## Author
 
-
+Kensuke Mitsuzawa (kensuke.mit あっとまーく gmail.com)
 
 ## License
 
