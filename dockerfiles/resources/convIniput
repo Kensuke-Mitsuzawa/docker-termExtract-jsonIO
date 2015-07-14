@@ -1,0 +1,16 @@
+import json
+import codecs
+
+with codecs.open('/Users/kensuke-mi/Desktop/analysis_work/sandbox/mecabDocker/dockerfiles/resources/parsed_date.json', 'r', 'utf-8') as f:
+    fumanObj = json.load(f)
+
+outArray = []
+
+for fumanSenteceneObj in fumanObj['fetched_data']:
+    outArray.append(fumanSenteceneObj['rants'])
+
+outObj = {'inputArray': outArray}
+
+with codecs.open('/Users/kensuke-mi/Desktop/analysis_work/sandbox/mecabDocker/dockerfiles/resources/input.json', 'w', 'utf-8') as f:
+    strJson = json.dumps(outObj, indent=4, ensure_ascii=False)
+    f.write(strJson)
