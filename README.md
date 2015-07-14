@@ -32,19 +32,14 @@ TermExtractについては[このページ](http://gensen.dl.itc.u-tokyo.ac.jp/t
 ### イメージ構築
 
 ```bash
-% git clone git@github.com:
-% cd docker-termextract
+% git@github.com:Kensuke-Mitsuzawa/docker-termExtract-jsonIO.git
 % mkdir /var/lib/termextract
 % docker build -t termextract-json-io .
 ```
 
-### docker host側の準備
+`mkdir /var/lib/termextract`はdockerコンテナと共有のディレクトリを作成しているだけです。
 
-コンテナと共有するディレクトリの用意
-
-```
-% mkdir /var/lib/termextract
-```
+他の共有ディレクトリを使う場合は実行の必要ありません。
 
 ## 使い方
 
@@ -69,6 +64,7 @@ Arrayの中には１要素=１文で記述してください。
     ]
 }
 ```
+
 ### コンテナ起動
 
 イメージからコンテナを起動します。
