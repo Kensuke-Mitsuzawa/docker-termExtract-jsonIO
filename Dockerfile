@@ -15,6 +15,9 @@ ENV LANG ja_JP.UTF-8
 ENV LANGUAGE ja_JP:ja
 ENV LC_ALL ja_JP.UTF-8
 
+RUN rpm -ivh http://packages.groonga.org/centos/groonga-release-1.1.0-1.noarch.rpm
+RUN yum makecache
+
 RUN yum install -y wget tar vi bzip2
 RUN yum install -y gcc make gcc-c++
 RUN yum install -y perl perl-devel
@@ -27,6 +30,8 @@ RUN yum -y install unzip
 RUN yum -y install curl xz
 RUN yum -y install python-devel.x86_64 
 RUN yum -y install patch
+RUN yum -y install file 
+RUN yum -y install openssl 
 
 #RUN yum install -y nkf
 RUN yum localinstall -y http://mirror.centos.org/centos/6/os/x86_64/Packages/nkf-2.0.8b-6.2.el6.x86_64.rpm
@@ -39,34 +44,41 @@ RUN yum localinstall -y http://mirror.centos.org/centos/6/os/x86_64/Packages/nkf
 #RUN apt-get install -y perl libperl-dev
 
 # Mecab
-RUN wget http://mecab.googlecode.com/files/mecab-0.996.tar.gz
+#RUN yum -y install mecab mecab-ipadic
+#RUN wget http://mecab.googlecode.com/files/mecab-0.996.tar.gz
+RUN wget -O mecab-0.996.tar.gz "https://drive.google.com/uc?export=download&id=0B4y35FiV1wh7cENtOXlicTFaRUE"
 RUN tar -xzf mecab-0.996.tar.gz
 RUN cd mecab-0.996; ./configure --enable-utf8-only; make; make install; ldconfig
 
 # Ipadic
-RUN wget http://mecab.googlecode.com/files/mecab-ipadic-2.7.0-20070801.tar.gz
+#RUN wget http://mecab.googlecode.com/files/mecab-ipadic-2.7.0-20070801.tar.gz
+RUN wget -O mecab-ipadic-2.7.0-20070801.tar.gz "https://drive.google.com/uc?export=download&id=0B4y35FiV1wh7MWVlSDBCSXZMTXM"
 RUN tar -xzf mecab-ipadic-2.7.0-20070801.tar.gz
 RUN cd mecab-ipadic-2.7.0-20070801; ./configure --with-charset=utf8; make; make install
 RUN echo "dicdir = /usr/local/lib/mecab/dic/ipadic" > /usr/local/etc/mecabrc
 
 # Ipadic_model
-RUN wget http://mecab.googlecode.com/files/mecab-ipadic-2.7.0-20070801.model.bz2
-RUN bzip2 -d mecab-ipadic-2.7.0-20070801.model.bz2
+#RUN wget http://mecab.googlecode.com/files/mecab-ipadic-2.7.0-20070801.model.bz2
+#RUN bzip2 -d mecab-ipadic-2.7.0-20070801.model.bz2
 #RUN iconv -f EUCJP -t UTF-8 mecab-ipadic-2.7.0-20070801.model -o mecab-ipadic-2.7.0-20070801.model
-RUN nkf --overwrite -Ew mecab-ipadic-2.7.0-20070801.model
-RUN sed -i -e "s/euc-jp/utf-8/g" mecab-ipadic-2.7.0-20070801.model
+#RUN nkf --overwrite -Ew mecab-ipadic-2.7.0-20070801.model
+#RUN sed -i -e "s/euc-jp/utf-8/g" mecab-ipadic-2.7.0-20070801.model
 
 # MeCab python binding
-COPY ./dockerfiles/mecab-python-0.996.tar.gz /
-RUN tar -xvf /mecab-python-0.996.tar.gz
-WORKDIR mecab-python-0.996
-RUN python2.7 setup.py build
-RUN python2.7 setup.py install
-WORKDIR /
-RUN rm -rf mecab-python-0.996.tar.gz
+#COPY ./dockerfiles/mecab-python-0.996.tar.gz /
+#RUN tar -xvf /mecab-python-0.996.tar.gz
+#WORKDIR mecab-python-0.996
+#RUN python2.7 setup.py build
+#RUN python2.7 setup.py install
+#WORKDIR /
+#RUN rm -rf mecab-python-0.996.tar.gz
+RUN yum -y install epel-release
+RUN yum -y install python-pip --enablerepo=epel
+RUN pip install mecab-python
 
 # Mecab-perl
-RUN wget http://mecab.googlecode.com/files/mecab-perl-0.996.tar.gz
+#RUN wget http://mecab.googlecode.com/files/mecab-perl-0.996.tar.gz
+COPY ./dockerfiles/mecab-perl-0.996.tar.gz ./ 
 RUN tar -xzf mecab-perl-0.996.tar.gz
 RUN cd mecab-perl-0.996 ;perl Makefile.PL; make ;make install;
 RUN echo "/usr/local/lib" > /etc/ld.so.conf.d/mecab.conf
